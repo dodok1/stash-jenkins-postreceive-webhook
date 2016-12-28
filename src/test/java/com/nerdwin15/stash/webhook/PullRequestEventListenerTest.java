@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.RefChange;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,7 @@ import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
 
 /**
  * Test case for the PullRequestRescopeListener class.
- * 
+ *
  * @author Michael Irwin (mikesir87)
  */
 @RunWith(PowerMockRunner.class)
@@ -40,6 +41,7 @@ public class PullRequestEventListenerTest {
   private EligibilityFilterChain filterChain;
   private PullRequestEventListener listener;
   private SettingsService settingsService;
+  private PullRequestService pullRequestService;
   private PullRequestEvent event;
   private Repository repo;
 
@@ -50,17 +52,18 @@ public class PullRequestEventListenerTest {
   public void setup() throws Exception {
     PullRequest request = mock(PullRequest.class);
     PullRequestRef toRef = mock(PullRequestRef.class);
-    
+
     event = mock(PullRequestEvent.class);
     when(event.getPullRequest()).thenReturn(request);
     when(request.getToRef()).thenReturn(toRef);
     when(toRef.getRepository()).thenReturn(repo);
-    
+
     notifier = mock(Notifier.class);
     filterChain = mock(EligibilityFilterChain.class);
     settingsService = mock(SettingsService.class);
-    listener = new PullRequestEventListener(filterChain, notifier, 
-        settingsService);
+    pullRequestService = Mockito.mock(PullRequestService.class);
+    listener = new PullRequestEventListener(filterChain, notifier,
+        settingsService, pullRequestService);
   }
 
   /**
@@ -117,7 +120,7 @@ public class PullRequestEventListenerTest {
 //
 //    verify(notifier, never()).notifyBackground(repo, "master", "sha1");
 //  }
-  
+
   /**
    * Validates that if the repository has no settings set, execution stops
    * @throws Exception
